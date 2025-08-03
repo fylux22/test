@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #pragma comment (lib, "d3d11.lib")
 
@@ -29,6 +29,7 @@
 
 #include "../Hacks/esp.h"
 #include "../Hacks/aimbot.h"
+#include "../Hacks/autoparry.h"
 #include "W2S.h"
 
 static ID3D11Device* g_pd3dDevice = nullptr;
@@ -202,7 +203,7 @@ void ShowImgui()
 
         if (showMenu)
         {
-            ImGui::Begin("External | @Kam546 & @redstoneprojrjr", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
+            ImGui::Begin("Flux Ware V1 | @fylux22", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
 
             if (ImGui::Button("Visuals | " ICON_FA_EYE))
                 category = 0;
@@ -210,8 +211,11 @@ void ShowImgui()
             if (ImGui::Button("Aimot | " ICON_FA_GUN))
                 category = 1;
             ImGui::SameLine();
-            if (ImGui::Button("Miscellaneous | " ICON_FA_CHESS))
+            if (ImGui::Button("Auto Parry | " ICON_FA_SHIELD))
                 category = 2;
+            ImGui::SameLine();
+            if (ImGui::Button("Miscellaneous | " ICON_FA_CHESS))
+                category = 3;
             ImGui::SameLine();
             if (ImGui::Button("Explorer | " ICON_FA_FOLDER))
                 explorer = !explorer;
@@ -220,50 +224,96 @@ void ShowImgui()
                 playerList = !playerList;
             ImGui::SameLine();
             if (ImGui::Button("Configurations | " ICON_FA_GEAR))
-                category = 3;
+                category = 4;
 
             switch (category)
             {
                 case 0: // Visuals
                 {
+                    ImGui::Text("Basic ESP");
+                    ImGui::Separator();
+                    
                     ImGui::Checkbox("Team Check", &Options::ESP::TeamCheck);
-                    ImGui::SameLine(540);
-                    ImGui::ColorEdit3("Box Color", Options::ESP::BoxColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
+                    ImGui::SameLine(280);
                     ImGui::Checkbox("Box ESP", &Options::ESP::Box);
-                    ImGui::SameLine(540);
-                    ImGui::ColorEdit4("Box Fill Color", Options::ESP::BoxFillColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
+                    ImGui::SameLine(420);
+                    ImGui::ColorEdit3("##BoxColor", Options::ESP::BoxColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+                    
+                    if (Options::ESP::Box)
+                    {
+                        ImGui::Indent();
+                        ImGui::Checkbox("Box Filled", &Options::ESP::BoxFilled);
+                        ImGui::SameLine(280);
+                        ImGui::SliderFloat("Box Opacity", &Options::ESP::BoxOpacity, 0.0f, 1.0f, "%.2f");
+                        if (Options::ESP::BoxFilled)
+                        {
+                            ImGui::ColorEdit4("Box Fill Color", Options::ESP::BoxFillColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
+                        }
+                        ImGui::Unindent();
+                    }
+                    
                     ImGui::Checkbox("Skeleton ESP", &Options::ESP::Skeleton);
-                    ImGui::SameLine(540);
-                    ImGui::ColorEdit3("Skeleton Color", Options::ESP::SkeletonColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
-                    ImGui::NewLine();
+                    ImGui::SameLine(280);
+                    ImGui::SliderFloat("Skeleton Opacity", &Options::ESP::SkeletonOpacity, 0.0f, 1.0f, "%.2f");
+                    ImGui::SameLine(420);
+                    ImGui::ColorEdit3("##SkeletonColor", Options::ESP::SkeletonColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+                    
                     ImGui::Checkbox("Name ESP", &Options::ESP::Name);
-                    ImGui::SameLine(540);
-                    ImGui::ColorEdit3("Name Color", Options::ESP::Color, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
+                    ImGui::SameLine(280);
                     ImGui::Checkbox("Distance ESP", &Options::ESP::Distance);
-                    ImGui::SameLine(540);
-                    ImGui::ColorEdit3("Distance Color", Options::ESP::DistanceColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
+                    ImGui::SameLine(420);
+                    ImGui::ColorEdit3("##NameColor", Options::ESP::Color, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+                    
                     ImGui::Checkbox("Health Bar", &Options::ESP::Health);
+                    ImGui::SameLine(280);
+                    ImGui::Checkbox("Head Circle", &Options::ESP::HeadCircle);
+                    ImGui::SameLine(420);
+                    ImGui::ColorEdit3("##HeadColor", Options::ESP::HeadCircleColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+
                     ImGui::NewLine();
+                    ImGui::Text("Advanced ESP");
+                    ImGui::Separator();
+                    
+                    ImGui::Checkbox("Chams", &Options::ESP::Chams);
+                    if (Options::ESP::Chams)
+                    {
+                        ImGui::Indent();
+                        ImGui::Checkbox("Through Walls", &Options::ESP::ChamsThroughWalls);
+                        ImGui::SliderFloat("Chams Opacity", &Options::ESP::ChamsOpacity, 0.0f, 1.0f, "%.2f");
+                        ImGui::ColorEdit4("Chams Color", Options::ESP::ChamsColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
+                        ImGui::ColorEdit4("Visible Color", Options::ESP::ChamsVisibleColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
+                        ImGui::Unindent();
+                    }
+                    
+                    ImGui::Checkbox("Glow Effect", &Options::ESP::GlowEffect);
+                    if (Options::ESP::GlowEffect)
+                    {
+                        ImGui::Indent();
+                        ImGui::SliderFloat("Glow Intensity", &Options::ESP::GlowIntensity, 0.1f, 3.0f, "%.1f");
+                        ImGui::ColorEdit4("Glow Color", Options::ESP::GlowColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
+                        ImGui::Unindent();
+                    }
 
                     ImGui::Checkbox("3D ESP", &Options::ESP::ESP3D);
-                    ImGui::SameLine(540);
-                    ImGui::ColorEdit3("3D ESP Color", Options::ESP::ESP3DColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
-                    ImGui::NewLine();
+                    ImGui::SameLine(280);
+                    ImGui::ColorEdit3("##3DColor", Options::ESP::ESP3DColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
 
-                    ImGui::Checkbox("Head Circle", &Options::ESP::HeadCircle);
-                    ImGui::SameLine(540);
-                    ImGui::ColorEdit3("Head Color", Options::ESP::HeadCircleColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
                     ImGui::NewLine();
-
+                    ImGui::Text("Tracers");
+                    ImGui::Separator();
+                    
                     ImGui::Checkbox("Tracers", &Options::ESP::Tracers);
-                    ImGui::SameLine(540);
-                    ImGui::ColorEdit3("Tracer Color", Options::ESP::TracerColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
-
-                    ImGui::SliderFloat("Tracer Thickness", &Options::ESP::TracerThickness, 1.0f, 10.0f, "%.1f");
-
-                    static const char* tracersStarts[]{ "Bottom","Top","Mouse","Torso" };
-
-                    ImGui::Combo("Tracers Start", &Options::ESP::TracersStart, tracersStarts, IM_ARRAYSIZE(tracersStarts));
+                    ImGui::SameLine(280);
+                    ImGui::ColorEdit3("##TracerColor", Options::ESP::TracerColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+                    
+                    if (Options::ESP::Tracers)
+                    {
+                        ImGui::SliderFloat("Tracer Thickness", &Options::ESP::TracerThickness, 1.0f, 10.0f, "%.1f");
+                        
+                        static const char* tracersStarts[]{ "Bottom","Top","Mouse","Torso" };
+                        ImGui::Combo("Tracers Start", &Options::ESP::TracersStart, tracersStarts, IM_ARRAYSIZE(tracersStarts));
+                    }
+                    
                     break;
                 }
 
@@ -315,14 +365,71 @@ void ShowImgui()
                     break;
 
                 }
-                case 2: // Misc.
+                case 2: // Auto Parry
+                {
+                    ImGui::Checkbox("Auto Parry", &Options::AutoParry::AutoParry);
+                    ImGui::SameLine(564);
+                    KeyBind::KeyBindButton("##ParryKey", &Options::AutoParry::ParryKey);
+                    
+                    ImGui::Separator();
+                    ImGui::Text("Debugger Settings");
+                    ImGui::Checkbox("Enable Debugger", &Options::AutoParry::AutoParryDebugger);
+                    
+                    if (Options::AutoParry::AutoParryDebugger)
+                    {
+                        ImGui::Indent();
+                        ImGui::Checkbox("Show Debug Overlay", &Options::AutoParry::ShowDebugOverlay);
+                        ImGui::Checkbox("Log Detections", &Options::AutoParry::LogDetections);
+                        ImGui::Checkbox("Show Timing Analysis", &Options::AutoParry::ShowTimingAnalysis);
+                        ImGui::Checkbox("Show Range Indicator", &Options::AutoParry::ShowRangeIndicator);
+                        
+                        ImGui::ColorEdit3("Debug Text Color", Options::AutoParry::DebugTextColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
+                        ImGui::SameLine();
+                        ImGui::ColorEdit3("Detection Color", Options::AutoParry::DetectionColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
+                        ImGui::ColorEdit3("Success Color", Options::AutoParry::SuccessColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
+                        ImGui::SameLine();
+                        ImGui::ColorEdit3("Range Color", Options::AutoParry::RangeColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
+                        
+                        if (ImGui::Button("Clear Debug Log"))
+                            g_ParryDebugger.Clear();
+                        
+                        ImGui::Unindent();
+                    }
+                    
+                    ImGui::Separator();
+                    ImGui::Text("Parry Settings");
+                    ImGui::SliderFloat("Parry Range (Studs)", &Options::AutoParry::ParryRange, 5.0f, 50.0f, "%.1f");
+                    ImGui::SliderFloat("Parry Delay (s)", &Options::AutoParry::ParryDelay, 0.0f, 0.5f, "%.3f");
+                    ImGui::SliderFloat("Hold Time (s)", &Options::AutoParry::HoldTime, 0.05f, 0.3f, "%.3f");
+                    
+                    ImGui::Separator();
+                    ImGui::Text("Smart Settings");
+                    ImGui::Checkbox("Smart Timing", &Options::AutoParry::SmartTiming);
+                    if (Options::AutoParry::SmartTiming)
+                    {
+                        ImGui::Indent();
+                        ImGui::SliderFloat("Prediction Time (s)", &Options::AutoParry::PredictionTime, 0.0f, 0.2f, "%.3f");
+                        ImGui::Unindent();
+                    }
+                    
+                    ImGui::Checkbox("Only Parry When Facing", &Options::AutoParry::OnlyParryWhenFacing);
+                    if (Options::AutoParry::OnlyParryWhenFacing)
+                    {
+                        ImGui::Indent();
+                        ImGui::SliderFloat("Facing Angle Tolerance", &Options::AutoParry::FacingAngleTolerance, 15.0f, 90.0f, "%.0f°");
+                        ImGui::Unindent();
+                    }
+                    
+                    break;
+                }
+                case 3: // Misc.
                 {
                     ImGui::SliderFloat("Walkspeed", &Options::Misc::Walkspeed, 0.f, 500.f, "%.0f");
                     ImGui::SliderFloat("JumpPower", &Options::Misc::JumpPower, 0.f, 500.f, "%.0f");
                     ImGui::SliderFloat("FOV", &Options::Misc::FOV, 1.f, 120, "%.0f");
                     break;
                 }
-                case 3:
+                case 4:
                 {
                     Globals::configsArray.clear();
                     for (const auto& entry : std::filesystem::directory_iterator(Globals::configsPath))
@@ -406,7 +513,7 @@ void ShowImgui()
 
             // Watermark
 
-            std::string str = "@Kam546 & @redstoneprojrjr | " + std::to_string(static_cast<int>(io.Framerate)) + " FPS";
+            std::string str = "@fylux22 | " + std::to_string(static_cast<int>(io.Framerate)) + " FPS";
 
             ImVec2 textSize = ImGui::CalcTextSize(str.c_str());
 
@@ -496,6 +603,11 @@ void ShowImgui()
         {
             if (!showMenu && IsGameOnTop("Roblox"))
                 RunAimbot(ImGui::GetBackgroundDrawList());
+        }
+
+        if (Options::AutoParry::AutoParryDebugger)
+        {
+            g_ParryDebugger.RenderDebugOverlay(ImGui::GetBackgroundDrawList());
         }
 
         ImGui::Render();

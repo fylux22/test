@@ -68,8 +68,7 @@ int main()
         return -1;
     }
 
-    log(std::string("Roblox PID -> " + std::to_string(Memory->getProcessId())), 1);
-    log(std::string("Roblox Base Address -> 0x" + toHexString(std::to_string(Memory->getBaseAddress()), false, true)), 1);
+    // Memory/system status removed as requested
 
     Globals::executablePath = GetExecutableDir();
 
@@ -121,12 +120,7 @@ int main()
 
     Globals::Roblox::lastPlaceID = Memory->read<int>(Globals::Roblox::DataModel.address + offsets::PlaceId);;
 
-    log(std::string("DataModel -> 0x" + toHexString(std::to_string(Globals::Roblox::DataModel.address), false, true)), 1);
-    log(std::string("VisualEngine -> 0x" + toHexString(std::to_string(Globals::Roblox::VisualEngine), false, true)), 1);
-
-    log(std::string("Workspace -> 0x" + toHexString(std::to_string(Globals::Roblox::Workspace.address), false, true)), 1);
-    log(std::string("Players -> 0x" + toHexString(std::to_string(Globals::Roblox::Players.address), false, true)), 1);
-    log(std::string("Camera -> 0x" + toHexString(std::to_string(Globals::Roblox::Camera.address), false, true)), 1);
+    // Memory/system status logging removed as requested
 
     log(std::string("Logged in as " + Globals::Roblox::LocalPlayer.Name()), 1);
 
@@ -135,6 +129,7 @@ int main()
     std::thread(CachePlayerObjects).detach();
     std::thread(TPHandler).detach();
     std::thread(MiscLoop).detach();
+    std::thread(AutoParryLoop).detach();
 
     std::cin.get();
 

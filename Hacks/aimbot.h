@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <chrono>
 
 #include "../renderer/W2S.h"
 #include "../renderer/imgui/imgui.h"
@@ -215,6 +216,11 @@ inline void MouseSendInput(const Vectors::Vector2& targetPos, const POINT& curre
 
 inline void RunAimbot(ImDrawList* drawList)
 {
+    static auto lastAimbotTime = std::chrono::steady_clock::now();
+    static auto lastDelayTime = std::chrono::steady_clock::now();
+    static bool isHolding = false;
+    
+    auto currentTime = std::chrono::steady_clock::now();
     auto localTeam = Globals::Roblox::LocalPlayer.Team();
     auto localCharacter = Globals::Roblox::LocalPlayer.Character();
     auto localHRP = localCharacter.FindFirstChild("HumanoidRootPart");
@@ -272,10 +278,41 @@ inline void RunAimbot(ImDrawList* drawList)
         drawList->AddCircleFilled(ImVec2(p.x, p.y), Options::Aimbot::FOV, FOVFillColor, 0);
     }
 
-    if (KeyBind::IsPressed(Options::Aimbot::AimbotKey) && Options::Aimbot::ToggleType == 1)
+    // Handle hold time logic
+    if (KeyBind::IsPressed(Options::Aimbot::AimbotKey))
     {
-        Options::Aimbot::Toggled = !Options::Aimbot::Toggled;
+        if (!isHolding)
+        {
+            isHolding = true;
+            lastAimbotTime = currentTime;
+        }
+        
+        auto holdElapsed = std::chrono::duration<float>(currentTime - lastAimbotTime).count();
+        
+        if (holdElapsed < Options::Aimbot::HoldTime)
+        {
+            Options::Aimbot::CurrentTarget = RobloxPlayer(0);
+            return;
+        }
+        
+        // Handle toggle logic
+        if (Options::Aimbot::ToggleType == 1)
+        {
+            Options::Aimbot::Toggled = !Options::Aimbot::Toggled;
+        }
     }
+    else
+    {
+        isHolding = false;
+    }
+
+    // Handle delay time logic
+    auto delayElapsed = std::chrono::duration<float>(currentTime - lastDelayTime).count();
+    if (delayElapsed < Options::Aimbot::DelayTime)
+    {
+        return;
+    }
+    lastDelayTime = currentTime;
 
     if (!KeyBind::IsPressed(Options::Aimbot::AimbotKey) && !Options::Aimbot::Toggled)
     {

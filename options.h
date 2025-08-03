@@ -37,28 +37,13 @@ namespace Options
 		inline float HeadCircleColor[3];
 		inline float HeadCircleMaxScale = 2.5f;
 	}
-	namespace Aimbot
+	namespace Parry
 	{
-		inline int AimbotKey = VK_RBUTTON;
-		inline int AimingType;
-
-		inline int ToggleType;
-
-		inline bool Aimbot;
-		inline bool TeamCheck;
-		inline bool DownedCheck;
-		inline bool StickyAim;
-		inline float FOV;
-		inline float Smoothness;
-		inline bool ShowFOV;
-		inline float Range = 100.f;
-
-		inline float FOVColor[3];
-		inline float FOVFillColor[4];
-		
-		inline int TargetBone = 0;
-		
-		inline RobloxPlayer CurrentTarget;
-		inline bool Toggled;
+		inline bool Enabled = false;
+		inline int ParryKey = VK_F;
+		inline float HoldTime = 0.25f;
+		inline float DelayTime = 0.001f;
+		inline bool AutoParry = false;
+		inline float ParryWindow = 0.1f;
 	}
 }

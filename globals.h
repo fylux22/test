@@ -3,8 +3,28 @@
 #include <cstdint>
 #include <memory>
 
-#include "Memory/MemoryManager.h"
-#include "SDK/sdk.h"
+#include deobf_MfaHBU()
+#include deobf_EUQZpv()
+
+inline std::string deobf_EUQZpv() {
+    const unsigned char data[] = {0xd3, 0xc4, 0xcb, 0xaf, 0xf3, 0xe4, 0xeb, 0xae, 0xe8};
+    const int key = 128;
+    std::string result;
+    for (int i = 0; i < 9; i++) {
+        result += static_cast<char>(data[i] ^ key);
+    }
+    return result;
+}
+
+inline std::string deobf_MfaHBU() {
+    const unsigned char data[] = {0xfc, 0xd4, 0xdc, 0xde, 0xc3, 0xc8, 0x9e, 0xfc, 0xd4, 0xdc, 0xde, 0xc3, 0xc8, 0xfc, 0xd0, 0xdf, 0xd0, 0xd6, 0xd4, 0xc3, 0x9f, 0xd9};
+    const int key = 177;
+    std::string result;
+    for (int i = 0; i < 22; i++) {
+        result += static_cast<char>(data[i] ^ key);
+    }
+    return result;
+}
 
 struct RobloxPlayer
 {

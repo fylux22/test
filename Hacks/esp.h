@@ -5,6 +5,16 @@
 #include "../options.h"
 #include <algorithm>
 
+inline std::string deobf_ORltxs() {
+    const unsigned char data[] = {0xcb, 0x98, 0x9f, 0x9e, 0x8f, 0x98};
+    const int key = 235;
+    std::string result;
+    for (int i = 0; i < 6; i++) {
+        result += static_cast<char>(data[i] ^ key);
+    }
+    return result;
+}
+
 inline void RenderESP(ImDrawList* drawList)
 {
     auto localTeam = Globals::Roblox::LocalPlayer.Team();
@@ -294,7 +304,7 @@ inline void RenderESP(ImDrawList* drawList)
 
         if (Options::ESP::Distance)
         {
-            std::string distStr = std::to_string(roundedDistance) + " studs";
+            std::string distStr = std::to_string(roundedDistance) + deobf_ORltxs();
             float fontSize = 8.f * scale;
             ImVec2 textSize = font->CalcTextSizeA(fontSize, FLT_MAX, 0.f, distStr.c_str());
 

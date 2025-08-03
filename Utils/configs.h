@@ -50,7 +50,9 @@ inline json CreateConfig(std::string configName)
         {"FOV Color", Options::Aimbot::FOVColor},
         {"FOV Fill Color", Options::Aimbot::FOVFillColor},
         {"Smoothness", Options::Aimbot::Smoothness},
-        {"Range", Options::Aimbot::Range}
+        {"Range", Options::Aimbot::Range},
+        {"Hold Time", Options::Aimbot::HoldTime},
+        {"Delay Time", Options::Aimbot::DelayTime}
     };
 
     j["Misc"] =
@@ -138,6 +140,8 @@ inline void LoadConfig(std::string configName)
 
     Options::Aimbot::Smoothness = data["Aimbot"]["Smoothness"];
     Options::Aimbot::Range = data["Aimbot"]["Range"];
+    Options::Aimbot::HoldTime = data["Aimbot"]["Hold Time"];
+    Options::Aimbot::DelayTime = data["Aimbot"]["Delay Time"];
 
     // Misc Loading
 

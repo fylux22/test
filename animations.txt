@@ -1,0 +1,33 @@
+# Animation Data File for Parry Detection System
+# Format: name type range duration category isAttack
+# name: Animation name as it appears in the game
+# type: "M1", "M2", "Ability", "Animation"
+# range: Attack range in studs
+# duration: Animation duration in seconds
+# category: "Attack", "Ability", "Special", "Movement"
+# isAttack: 1 for attack animations, 0 for non-attack animations
+
+# Example M1 attacks
+SwordSlash M1 5.0 0.8 Attack 1
+Punch M1 3.0 0.6 Attack 1
+Kick M1 4.0 0.7 Attack 1
+Stab M1 6.0 0.9 Attack 1
+
+# Example M2 attacks
+HeavySwing M2 8.0 1.2 Attack 1
+PowerStrike M2 7.0 1.0 Attack 1
+ChargedAttack M2 9.0 1.5 Attack 1
+
+# Example abilities
+Fireball Ability 15.0 2.0 Ability 1
+Lightning Ability 12.0 1.8 Ability 1
+Teleport Ability 20.0 1.0 Ability 0
+Heal Ability 0.0 2.5 Ability 0
+
+# Example custom animations
+DodgeRoll Animation 0.0 1.0 Movement 0
+Block Animation 0.0 0.5 Attack 0
+Counter Animation 6.0 0.8 Attack 1
+
+# Add your game-specific animations below
+# Replace these with actual animation names from your game

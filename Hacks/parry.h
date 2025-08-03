@@ -6,6 +6,9 @@
 #include <thread>
 #include <vector>
 #include <chrono>
+#include <fstream>
+#include <sstream>
+#include <map>
 
 namespace ParryDetection
 {
@@ -19,6 +22,16 @@ namespace ParryDetection
         std::string animationName;
         std::chrono::steady_clock::time_point attackTime;
         bool isActive;
+    };
+
+    struct AnimationData
+    {
+        std::string name;
+        std::string type; // "M1", "M2", "Ability", "Animation"
+        float range;
+        float duration;
+        std::string category; // "Attack", "Ability", "Special"
+        bool isAttack;
     };
 
     struct ParryConfig
@@ -36,6 +49,7 @@ namespace ParryDetection
         bool visualFeedback = true;
         float parryColor[3] = {1.0f, 0.0f, 0.0f}; // Red
         bool logAttacks = false;
+        std::string animationDataFile = "animations.txt"; // File to load animation data from
     };
 
     inline ParryConfig config;
@@ -43,6 +57,97 @@ namespace ParryDetection
     inline std::chrono::steady_clock::time_point lastParryTime;
     inline bool parryCooldown = false;
     inline const float PARRY_COOLDOWN_DURATION = 0.5f; // seconds
+    inline std::map<std::string, AnimationData> loadedAnimations;
+
+    // Load animation data from file
+    inline bool LoadAnimationData(const std::string& filename)
+    {
+        std::ifstream file(filename);
+        if (!file.is_open())
+        {
+            std::cout << "[Parry] Could not open animation data file: " << filename << std::endl;
+            return false;
+        }
+
+        loadedAnimations.clear();
+        std::string line;
+        int lineNumber = 0;
+
+        while (std::getline(file, line))
+        {
+            lineNumber++;
+            if (line.empty() || line[0] == '#') // Skip empty lines and comments
+                continue;
+
+            std::istringstream iss(line);
+            std::string name, type, category;
+            float range, duration;
+            bool isAttack;
+
+            if (iss >> name >> type >> range >> duration >> category >> isAttack)
+            {
+                AnimationData anim;
+                anim.name = name;
+                anim.type = type;
+                anim.range = range;
+                anim.duration = duration;
+                anim.category = category;
+                anim.isAttack = isAttack;
+                
+                loadedAnimations[name] = anim;
+            }
+            else
+            {
+                std::cout << "[Parry] Invalid animation data format at line " << lineNumber << ": " << line << std::endl;
+            }
+        }
+
+        file.close();
+        std::cout << "[Parry] Loaded " << loadedAnimations.size() << " animations from " << filename << std::endl;
+        return true;
+    }
+
+    // Check if an animation is an attack animation
+    inline bool IsAttackAnimation(const std::string& animName)
+    {
+        // Check loaded animation data first
+        auto it = loadedAnimations.find(animName);
+        if (it != loadedAnimations.end())
+        {
+            return it->second.isAttack;
+        }
+
+        // Fallback to default attack animation names
+        std::vector<std::string> attackKeywords = {"Attack", "Swing", "Slash", "Stab", "Punch", "Kick", "Strike", "Hit"};
+        for (const auto& keyword : attackKeywords)
+        {
+            if (animName.find(keyword) != std::string::npos)
+                return true;
+        }
+
+        return false;
+    }
+
+    // Get animation data for a specific animation
+    inline AnimationData GetAnimationData(const std::string& animName)
+    {
+        auto it = loadedAnimations.find(animName);
+        if (it != loadedAnimations.end())
+        {
+            return it->second;
+        }
+
+        // Return default data if not found
+        AnimationData defaultData;
+        defaultData.name = animName;
+        defaultData.type = "Animation";
+        defaultData.range = 10.0f;
+        defaultData.duration = 1.0f;
+        defaultData.category = "Unknown";
+        defaultData.isAttack = IsAttackAnimation(animName);
+        
+        return defaultData;
+    }
 
     // Check if a player is attacking based on animation state
     inline bool IsPlayerAttacking(const RobloxInstance& player)
@@ -74,17 +179,14 @@ namespace ParryDetection
                 if (child.Class() == "AnimationTrack")
                 {
                     std::string animName = child.Name();
-                    // Use default animation names if not configured
-                    std::vector<std::string> animNames = {"Attack", "Swing", "Slash", "Stab", "Punch", "Kick"};
-                    for (const auto& attackAnim : animNames)
+                    
+                    // Check if this is an attack animation
+                    if (IsAttackAnimation(animName))
                     {
-                        if (animName.find(attackAnim) != std::string::npos)
-                        {
-                            // Check if animation is playing
-                            float timePosition = Memory->read<float>(child.address + 0x1C); // AnimationTrack time position
-                            if (timePosition > 0.0f)
-                                return true;
-                        }
+                        // Check if animation is playing
+                        float timePosition = Memory->read<float>(child.address + 0x1C); // AnimationTrack time position
+                        if (timePosition > 0.0f)
+                            return true;
                     }
                 }
             }
@@ -182,7 +284,7 @@ namespace ParryDetection
                 continue;
 
             // Team check (optional)
-            if (Options::Aimbot::TeamCheck)
+            if (Options::Parry::TeamCheck)
             {
                 if (cachedPlayer.Team.address == localPlayer.Team().address)
                     continue;
@@ -319,7 +421,7 @@ namespace ParryDetection
                 }
             }
 
-            // Detect custom animations
+            // Detect custom animations using loaded animation data
             if (config.detectAnimations)
             {
                 auto animator = character.FindFirstChildWhichIsA("HumanoidAnimator");
@@ -331,40 +433,38 @@ namespace ParryDetection
                         if (child.Class() == "AnimationTrack")
                         {
                             std::string animName = child.Name();
-                            for (const auto& attackAnim : config.animationNames)
+                            float timePosition = Memory->read<float>(child.address + 0x1C);
+                            
+                            // Check if this is an attack animation
+                            if (IsAttackAnimation(animName) && timePosition > 0.0f && timePosition < 0.5f)
                             {
-                                if (animName.find(attackAnim) != std::string::npos)
+                                AnimationData animData = GetAnimationData(animName);
+                                
+                                newAttack.attackType = animData.type;
+                                newAttack.attackRange = animData.range;
+                                newAttack.animationName = animName;
+                                
+                                bool alreadyTracked = false;
+                                for (const auto& existingAttack : activeAttacks)
                                 {
-                                    float timePosition = Memory->read<float>(child.address + 0x1C);
-                                    if (timePosition > 0.0f && timePosition < 0.5f) // Animation just started
+                                    if (existingAttack.attacker.address == newAttack.attacker.address && 
+                                        existingAttack.attackType == animData.type &&
+                                        existingAttack.animationName == animName)
                                     {
-                                        newAttack.attackType = "Animation";
-                                        newAttack.attackRange = 10.0f; // Default animation range
-                                        newAttack.animationName = animName;
-                                        
-                                        bool alreadyTracked = false;
-                                        for (const auto& existingAttack : activeAttacks)
-                                        {
-                                            if (existingAttack.attacker.address == newAttack.attacker.address && 
-                                                existingAttack.attackType == "Animation" &&
-                                                existingAttack.animationName == animName)
-                                            {
-                                                alreadyTracked = true;
-                                                break;
-                                            }
-                                        }
-
-                                        if (!alreadyTracked)
-                                        {
-                                            activeAttacks.push_back(newAttack);
-                                            if (config.logAttacks)
-                                            {
-                                                std::cout << "[Parry] Animation attack detected from " << cachedPlayer.Name << " (" << animName << ") at distance " << distance << std::endl;
-                                            }
-                                        }
+                                        alreadyTracked = true;
                                         break;
                                     }
                                 }
+
+                                if (!alreadyTracked)
+                                {
+                                    activeAttacks.push_back(newAttack);
+                                    if (config.logAttacks)
+                                    {
+                                        std::cout << "[Parry] Animation attack detected from " << cachedPlayer.Name << " (" << animName << ") at distance " << distance << std::endl;
+                                    }
+                                }
+                                break;
                             }
                         }
                     }
@@ -447,13 +547,46 @@ namespace ParryDetection
         }
     }
 
+    // Initialize parry system
+    inline void InitializeParrySystem()
+    {
+        // Load animation data if file exists
+        LoadAnimationData(config.animationDataFile);
+        
+        // Update config from options
+        config.enabled = Options::Parry::Enabled;
+        config.detectionRange = Options::Parry::DetectionRange;
+        config.parryWindow = Options::Parry::ParryWindow;
+        config.detectM1 = Options::Parry::DetectM1;
+        config.detectM2 = Options::Parry::DetectM2;
+        config.detectAbilities = Options::Parry::DetectAbilities;
+        config.detectAnimations = Options::Parry::DetectAnimations;
+        config.autoParry = Options::Parry::AutoParry;
+        config.parryKey = Options::Parry::ParryKey;
+        config.visualFeedback = Options::Parry::VisualFeedback;
+        config.logAttacks = Options::Parry::LogAttacks;
+        
+        // Copy color values
+        config.parryColor[0] = Options::Parry::ParryColor[0];
+        config.parryColor[1] = Options::Parry::ParryColor[1];
+        config.parryColor[2] = Options::Parry::ParryColor[2];
+    }
+
     // Main parry detection loop
     inline void ParryDetectionLoop()
     {
+        InitializeParrySystem();
+        
         while (true)
         {
             try
             {
+                // Update config from options (in case they changed)
+                config.enabled = Options::Parry::Enabled;
+                config.detectionRange = Options::Parry::DetectionRange;
+                config.parryWindow = Options::Parry::ParryWindow;
+                config.autoParry = Options::Parry::AutoParry;
+                
                 DetectAttacks();
                 UpdateParryCooldown();
                 
@@ -485,5 +618,11 @@ namespace ParryDetection
         {
             ExecuteParry();
         }
+    }
+
+    // Reload animation data
+    inline void ReloadAnimationData()
+    {
+        LoadAnimationData(config.animationDataFile);
     }
 }

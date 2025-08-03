@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #pragma comment (lib, "d3d11.lib")
 
@@ -213,6 +213,9 @@ void ShowImgui()
             if (ImGui::Button("Miscellaneous | " ICON_FA_CHESS))
                 category = 2;
             ImGui::SameLine();
+            if (ImGui::Button("Auto Parry | " ICON_FA_SHIELD))
+                category = 3;
+            ImGui::SameLine();
             if (ImGui::Button("Explorer | " ICON_FA_FOLDER))
                 explorer = !explorer;
             ImGui::SameLine();
@@ -220,7 +223,7 @@ void ShowImgui()
                 playerList = !playerList;
             ImGui::SameLine();
             if (ImGui::Button("Configurations | " ICON_FA_GEAR))
-                category = 3;
+                category = 4;
 
             switch (category)
             {
@@ -322,7 +325,33 @@ void ShowImgui()
                     ImGui::SliderFloat("FOV", &Options::Misc::FOV, 1.f, 120, "%.0f");
                     break;
                 }
-                case 3:
+                case 3: // Auto Parry
+                {
+                    ImGui::Checkbox("Auto Parry", &Options::AutoParry::Enabled);
+                    ImGui::NewLine();
+                    
+                    ImGui::Text("Delay Amount (seconds):");
+                    ImGui::SliderFloat("##DelayAmount", &Options::AutoParry::DelayAmount, 0.0f, 2.0f, "%.2f");
+                    ImGui::SameLine();
+                    ImGui::Text("Current: %.2fs", Options::AutoParry::DelayAmount);
+                    
+                    ImGui::NewLine();
+                    ImGui::Text("Parry Range (studs):");
+                    ImGui::SliderFloat("##ParryRange", &Options::AutoParry::ParryRange, 1.0f, 50.0f, "%.1f");
+                    ImGui::SameLine();
+                    ImGui::Text("Current: %.1f", Options::AutoParry::ParryRange);
+                    
+                    ImGui::NewLine();
+                    ImGui::Text("Parry Hold Time (seconds):");
+                    ImGui::SliderFloat("##ParryHoldTime", &Options::AutoParry::ParryHoldTime, 0.1f, 2.0f, "%.2f");
+                    ImGui::SameLine();
+                    ImGui::Text("Current: %.2fs", Options::AutoParry::ParryHoldTime);
+                    
+                    ImGui::NewLine();
+                    ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Auto Parry Status: %s", Options::AutoParry::Enabled ? "ENABLED" : "DISABLED");
+                    break;
+                }
+                case 4:
                 {
                     Globals::configsArray.clear();
                     for (const auto& entry : std::filesystem::directory_iterator(Globals::configsPath))

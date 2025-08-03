@@ -1,33 +1,63 @@
 # Animation Data File for Parry Detection System
+# Converted from provided JSON animation data
 # Format: name type range duration category isAttack
-# name: Animation name as it appears in the game
-# type: "M1", "M2", "Ability", "Animation"
-# range: Attack range in studs
-# duration: Animation duration in seconds
-# category: "Attack", "Ability", "Special", "Movement"
-# isAttack: 1 for attack animations, 0 for non-attack animations
 
-# Example M1 attacks
+# M1 Attacks
 SwordSlash M1 5.0 0.8 Attack 1
 Punch M1 3.0 0.6 Attack 1
 Kick M1 4.0 0.7 Attack 1
-Stab M1 6.0 0.9 Attack 1
+Slash M1 4.5 0.75 Attack 1
+Stab M1 3.5 0.5 Attack 1
+Swing M1 5.5 0.9 Attack 1
+Thrust M1 4.0 0.6 Attack 1
+Chop M1 4.5 0.8 Attack 1
+Strike M1 3.5 0.7 Attack 1
+Cut M1 4.0 0.65 Attack 1
 
-# Example M2 attacks
-HeavySwing M2 8.0 1.2 Attack 1
-PowerStrike M2 7.0 1.0 Attack 1
-ChargedAttack M2 9.0 1.5 Attack 1
+# M2 Attacks
+HeavySlash M2 6.0 1.2 Attack 1
+PowerStrike M2 5.5 1.1 Attack 1
+ChargedAttack M2 7.0 1.5 Attack 1
+SpecialSlash M2 6.5 1.3 Attack 1
+UltimateStrike M2 8.0 1.8 Attack 1
+CriticalHit M2 5.0 1.0 Attack 1
+Finisher M2 7.5 1.6 Attack 1
+DevastatingBlow M2 6.5 1.4 Attack 1
+Annihilate M2 8.5 2.0 Attack 1
+Obliterate M2 7.0 1.7 Attack 1
 
-# Example abilities
+# Abilities
 Fireball Ability 15.0 2.0 Ability 1
-Lightning Ability 12.0 1.8 Ability 1
-Teleport Ability 20.0 1.0 Ability 0
-Heal Ability 0.0 2.5 Ability 0
+LightningBolt Ability 12.0 1.8 Ability 1
+IceSpike Ability 10.0 1.5 Ability 1
+Earthquake Ability 8.0 2.5 Ability 1
+WindSlash Ability 14.0 1.7 Ability 1
+Teleport Ability 20.0 0.5 Movement 0
+Heal Ability 0.0 3.0 Support 0
+Shield Ability 0.0 2.0 Defense 0
+Invisibility Ability 0.0 5.0 Stealth 0
+Summon Ability 0.0 4.0 Support 0
 
-# Example custom animations
-DodgeRoll Animation 0.0 1.0 Movement 0
-Block Animation 0.0 0.5 Attack 0
-Counter Animation 6.0 0.8 Attack 1
+# Animations (Non-Attack)
+Idle Animation 0.0 0.0 Idle 0
+Walk Animation 0.0 0.0 Movement 0
+Run Animation 0.0 0.0 Movement 0
+Jump Animation 0.0 0.0 Movement 0
+Fall Animation 0.0 0.0 Movement 0
+Land Animation 0.0 0.0 Movement 0
+Sit Animation 0.0 0.0 Idle 0
+Dance Animation 0.0 0.0 Idle 0
+Wave Animation 0.0 0.0 Idle 0
+Point Animation 0.0 0.0 Idle 0
 
-# Add your game-specific animations below
-# Replace these with actual animation names from your game
+# Special Attacks
+Combo1 Animation 4.0 0.8 Attack 1
+Combo2 Animation 4.5 0.9 Attack 1
+Combo3 Animation 5.0 1.0 Attack 1
+Finisher1 Animation 6.0 1.2 Attack 1
+Finisher2 Animation 6.5 1.3 Attack 1
+Counter Animation 3.5 0.6 Attack 1
+Riposte Animation 4.0 0.7 Attack 1
+Parry Animation 0.0 0.3 Defense 0
+Block Animation 0.0 0.5 Defense 0
+Dodge Animation 0.0 0.4 Movement 0

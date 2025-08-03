@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #pragma comment (lib, "d3d11.lib")
 
@@ -18,7 +18,7 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_win32.h"
 #include "imgui/imgui_impl_dx11.h"
-#include "imgui/KeyBind.h"
+
 
 #include "font/IconsFontAwesome6.h"
 
@@ -27,9 +27,8 @@
 
 #include "../Utils/configs.h"
 
-#include "../Hacks/esp.h"
-#include "../Hacks/aimbot.h"
-#include "W2S.h"
+
+
 
 static ID3D11Device* g_pd3dDevice = nullptr;
 static ID3D11DeviceContext* g_pd3dDeviceContext = nullptr;
@@ -204,14 +203,8 @@ void ShowImgui()
         {
             ImGui::Begin("External | @Kam546 & @redstoneprojrjr", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
 
-            if (ImGui::Button("Visuals | " ICON_FA_EYE))
-                category = 0;
-            ImGui::SameLine();
-            if (ImGui::Button("Aimot | " ICON_FA_GUN))
-                category = 1;
-            ImGui::SameLine();
             if (ImGui::Button("Miscellaneous | " ICON_FA_CHESS))
-                category = 2;
+                category = 0;
             ImGui::SameLine();
             if (ImGui::Button("Explorer | " ICON_FA_FOLDER))
                 explorer = !explorer;
@@ -220,109 +213,18 @@ void ShowImgui()
                 playerList = !playerList;
             ImGui::SameLine();
             if (ImGui::Button("Configurations | " ICON_FA_GEAR))
-                category = 3;
+                category = 1;
 
             switch (category)
             {
-                case 0: // Visuals
-                {
-                    ImGui::Checkbox("Team Check", &Options::ESP::TeamCheck);
-                    ImGui::SameLine(540);
-                    ImGui::ColorEdit3("Box Color", Options::ESP::BoxColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
-                    ImGui::Checkbox("Box ESP", &Options::ESP::Box);
-                    ImGui::SameLine(540);
-                    ImGui::ColorEdit4("Box Fill Color", Options::ESP::BoxFillColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
-                    ImGui::Checkbox("Skeleton ESP", &Options::ESP::Skeleton);
-                    ImGui::SameLine(540);
-                    ImGui::ColorEdit3("Skeleton Color", Options::ESP::SkeletonColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
-                    ImGui::NewLine();
-                    ImGui::Checkbox("Name ESP", &Options::ESP::Name);
-                    ImGui::SameLine(540);
-                    ImGui::ColorEdit3("Name Color", Options::ESP::Color, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
-                    ImGui::Checkbox("Distance ESP", &Options::ESP::Distance);
-                    ImGui::SameLine(540);
-                    ImGui::ColorEdit3("Distance Color", Options::ESP::DistanceColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
-                    ImGui::Checkbox("Health Bar", &Options::ESP::Health);
-                    ImGui::NewLine();
-
-                    ImGui::Checkbox("3D ESP", &Options::ESP::ESP3D);
-                    ImGui::SameLine(540);
-                    ImGui::ColorEdit3("3D ESP Color", Options::ESP::ESP3DColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
-                    ImGui::NewLine();
-
-                    ImGui::Checkbox("Head Circle", &Options::ESP::HeadCircle);
-                    ImGui::SameLine(540);
-                    ImGui::ColorEdit3("Head Color", Options::ESP::HeadCircleColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
-                    ImGui::NewLine();
-
-                    ImGui::Checkbox("Tracers", &Options::ESP::Tracers);
-                    ImGui::SameLine(540);
-                    ImGui::ColorEdit3("Tracer Color", Options::ESP::TracerColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
-
-                    ImGui::SliderFloat("Tracer Thickness", &Options::ESP::TracerThickness, 1.0f, 10.0f, "%.1f");
-
-                    static const char* tracersStarts[]{ "Bottom","Top","Mouse","Torso" };
-
-                    ImGui::Combo("Tracers Start", &Options::ESP::TracersStart, tracersStarts, IM_ARRAYSIZE(tracersStarts));
-                    break;
-                }
-
-                case 1: // Aimbot
-                {
-                    ImGui::Checkbox("Aimbot", &Options::Aimbot::Aimbot);
-
-                    ImGui::SameLine(564);
-                    ImGui::SetNextItemWidth(100);
-                    KeyBind::KeyBindButton("##AimbotKey", &Options::Aimbot::AimbotKey);
-
-                    ImGui::Checkbox("Team Check", &Options::Aimbot::TeamCheck);
-
-                    ImGui::SameLine(564);
-
-                    static const char* toggleType[]{ "Hold", "Toggle" };
-                    ImGui::SetNextItemWidth(100);
-                    if(ImGui::Combo("##ToggleType", &Options::Aimbot::ToggleType, toggleType, IM_ARRAYSIZE(toggleType)));
-                    {
-                        Options::Aimbot::Toggled = false;
-                        Options::Aimbot::CurrentTarget = RobloxPlayer(0);
-                    }
-
-                    ImGui::Checkbox("Downed Check", &Options::Aimbot::DownedCheck);
-
-                    ImGui::SameLine(564);
-
-                    static const char* aimingMethods[]{ "Camera", "Mouse" };
-                    ImGui::SetNextItemWidth(100);
-                    ImGui::Combo("##AimingMethod", &Options::Aimbot::AimingType, aimingMethods, IM_ARRAYSIZE(aimingMethods));
-
-                    ImGui::Checkbox("Sticky Aim", &Options::Aimbot::StickyAim);
-
-                    ImGui::SameLine(564);
-
-                    static const char* targetBones[]{ "Head", "HumanoidRootPart", "Left Arm", "Right Arm", "Left Leg", "Right Leg" };
-                    ImGui::SetNextItemWidth(100);
-                    ImGui::Combo("##TargetBone", &Options::Aimbot::TargetBone, targetBones, IM_ARRAYSIZE(targetBones));
-
-                    ImGui::NewLine();
-                    ImGui::SliderFloat("Smoothness", &Options::Aimbot::Smoothness, 0.f, 1.f, "%.1f");
-                    ImGui::SliderFloat("Range (Studs)", &Options::Aimbot::Range, 1.f, 1000.f, "%.0f");
-                    ImGui::NewLine();
-                    ImGui::SliderFloat("FOV", &Options::Aimbot::FOV, 10.f, 360.f, "%.0f");
-                    ImGui::Checkbox("Show FOV", &Options::Aimbot::ShowFOV);
-                    ImGui::ColorEdit3("FOV Color", Options::Aimbot::FOVColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
-                    ImGui::ColorEdit4("FOV Fill Color", Options::Aimbot::FOVFillColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
-                    
-                    break;
-
-                }
-                case 2: // Misc.
+                case 0: // Misc
                 {
                     ImGui::SliderFloat("Walkspeed", &Options::Misc::Walkspeed, 0.f, 500.f, "%.0f");
                     ImGui::SliderFloat("JumpPower", &Options::Misc::JumpPower, 0.f, 500.f, "%.0f");
                     ImGui::SliderFloat("FOV", &Options::Misc::FOV, 1.f, 120, "%.0f");
                     break;
                 }
-                case 3:
+                case 1:
                 {
                     Globals::configsArray.clear();
                     for (const auto& entry : std::filesystem::directory_iterator(Globals::configsPath))
@@ -485,18 +387,7 @@ void ShowImgui()
             ImGui::End();
         }
 
-        if (Options::ESP::Box || Options::ESP::Skeleton || Options::ESP::Tracers || Options::ESP::Name ||
-            Options::ESP::Distance || Options::ESP::Health || Options::ESP::ESP3D)
-        {
-            if (!showMenu && IsGameOnTop("Roblox"))
-                RenderESP(ImGui::GetBackgroundDrawList());
-        }
 
-        if (Options::Aimbot::Aimbot)
-        {
-            if (!showMenu && IsGameOnTop("Roblox"))
-                RunAimbot(ImGui::GetBackgroundDrawList());
-        }
 
         ImGui::Render();
         const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w };

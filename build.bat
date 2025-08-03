@@ -5,11 +5,13 @@ echo.
 REM Create build directory
 if not exist "build" mkdir build
 
-REM Build with MinGW x64 - Windows Libraries
+REM Build with MinGW x64 - Windows Libraries (Windows 11 24H2 Compatible)
 x86_64-w64-mingw32-g++ -std=c++17 -O2 -DNDEBUG -DCURL_STATICLIB ^
+    -DWINVER=0x0A00 -D_WIN32_WINNT=0x0A00 -DNTDDI_VERSION=0x0A00000F ^
     -I. -IRenderer/imgui -Ikeyauth-cpp-library-1.3API-main -Ikeyauth-cpp-library-1.3API-main/curl -Ikeyauth-cpp-library-1.3API-main/libsodium -Ikeyauth-cpp-library-1.3API-main/nlohmann ^
     -static-libgcc -static-libstdc++ ^
     -Wl,--subsystem,windows ^
+    -Wl,--major-os-version,10 -Wl,--minor-os-version,0 ^
     main.cpp ^
     Hacks/misc.cpp ^
     Auth/keyauth_integration.cpp ^

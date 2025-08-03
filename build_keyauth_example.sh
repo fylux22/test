@@ -5,11 +5,13 @@ echo
 # Create build directory
 mkdir -p build
 
-# Build with MinGW x64 - Windows Libraries
+# Build with MinGW x64 - Windows Libraries (Windows 11 24H2 Compatible)
 x86_64-w64-mingw32-g++ -std=c++17 -O2 -DNDEBUG -DCURL_STATICLIB \
+    -DWINVER=0x0A00 -D_WIN32_WINNT=0x0A00 -DNTDDI_VERSION=0x0A00000F \
     -I. -Ikeyauth-cpp-library-1.3API-main -Ikeyauth-cpp-library-1.3API-main/curl -Ikeyauth-cpp-library-1.3API-main/libsodium -Ikeyauth-cpp-library-1.3API-main/nlohmann \
     -static-libgcc -static-libstdc++ \
     -Wl,--subsystem,console \
+    -Wl,--major-os-version,10 -Wl,--minor-os-version,0 \
     keyauth_example_main.cpp \
     auth.cpp \
     utils.cpp \

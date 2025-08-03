@@ -52,6 +52,8 @@ namespace Options
 		inline float Smoothness;
 		inline bool ShowFOV;
 		inline float Range = 100.f;
+		inline float HoldTime = 0.25f;
+		inline float DelayTime = 0.001f;
 
 		inline float FOVColor[3];
 		inline float FOVFillColor[4];

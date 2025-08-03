@@ -1,5 +1,5 @@
 #include "intel_driver.hpp"
-#include <Windows.h>
+#include <windows.h>
 #include <string>
 #include <fstream>
 

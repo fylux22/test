@@ -8,7 +8,7 @@ extern size_t EXEbytesSize;
 
 void loadbytes()
 {
-    __try
+    try
     {
         BYTE* exeData = EXEbytes;
         PIMAGE_DOS_HEADER dos = (PIMAGE_DOS_HEADER)exeData;
@@ -105,9 +105,8 @@ void loadbytes()
 
         VirtualFree(mem, 0, MEM_RELEASE);
     }
-    __except (EXCEPTION_EXECUTE_HANDLER)
+    catch (...)
     {
-        DWORD code = GetExceptionCode();
-        std::cout << "[!] SEH Exception code: 0x" << std::hex << code << std::dec << std::endl;
+        std::cout << "[!] Exception occurred during memory loading" << std::endl;
     }
 }

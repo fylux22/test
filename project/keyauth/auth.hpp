@@ -1,6 +1,7 @@
 #include <includes.hpp>
 #include <xorstr.hpp>
 #include <random>
+#include <algorithm>
 
 #define CURL_STATICLIB 
 
@@ -112,61 +113,61 @@ namespace KeyAuth {
 		static void setDebug(bool value);
 		
 
-		void load_user_data(nlohmann::json data) {
-			api::user_data.username = data[XorStr("username")];
-			api::user_data.ip = data[XorStr("ip")];
-			if (data[XorStr("hwid")].is_null()) {
-				api::user_data.hwid = XorStr("none");
-			}
-			else {
-				api::user_data.hwid = data[XorStr("hwid")];
-			}
-			api::user_data.createdate = data[XorStr("createdate")];
-			api::user_data.lastlogin = data[XorStr("lastlogin")];
-
-			for (int i = 0; i < data[XorStr("subscriptions")].size(); i++) { // Prompto#7895 & stars#2297 was here
-				subscriptions_class subscriptions;
-				subscriptions.name = data[XorStr("subscriptions")][i][XorStr("subscription")];
-				subscriptions.expiry = data[XorStr("subscriptions")][i][XorStr("expiry")];
-				api::user_data.subscriptions.emplace_back(subscriptions);
-			}
-		}
-
-		void load_app_data(nlohmann::json data) {
-			api::app_data.numUsers = data[XorStr("numUsers")];
-			api::app_data.numOnlineUsers = data[XorStr("numOnlineUsers")];
-			api::app_data.numKeys = data[XorStr("numKeys")];
-			api::app_data.version = data[XorStr("version")];
-			api::app_data.customerPanelLink = data[XorStr("customerPanelLink")];
-		}
-
-		void load_response_data(nlohmann::json data) {
-			api::response.success = data[XorStr("success")];
-			api::response.message = data["message"];
-
-			if (data.contains(XorStr("role").c_str()) && data[XorStr("role")] != XorStr("tester").c_str() && data[XorStr("role")] != XorStr("not_checked").c_str()) {
-				api::response.isPaid = true;
-			}
-		}
-
-		void load_channel_data(nlohmann::json data) {
-			api::response.success = data["success"]; // intentional. Possibly trick a reverse engineer into thinking this string is for login function
-			api::response.message = data["message"];
-			api::response.channeldata.clear(); //If you do not delete the data before pushing it, the data will be repeated. github.com/TTakaTit
-			for (const auto sub : data["messages"]) {
-
-				std::string authoroutput = sub[XorStr("author")];
-				std::string messageoutput = sub["message"];
-				int timestamp = sub[XorStr("timestamp")]; std::string timestampoutput = std::to_string(timestamp);
-				authoroutput.erase(remove(authoroutput.begin(), authoroutput.end(), '"'), authoroutput.end());
-				messageoutput.erase(remove(messageoutput.begin(), messageoutput.end(), '"'), messageoutput.end());
-				timestampoutput.erase(remove(timestampoutput.begin(), timestampoutput.end(), '"'), timestampoutput.end());
-				channel_struct output = { authoroutput , messageoutput, timestampoutput };
-				api::response.channeldata.push_back(output);
-			}
-		}
-
-		nlohmann::json response_decoder;
-
+//		//void load_user_data(nlohmann::json data) {
+//			api::user_data.username = data[XorStr("username")];
+//			api::user_data.ip = data[XorStr("ip")];
+//			if (data[XorStr("hwid")].is_null()) {
+//				api::user_data.hwid = XorStr("none");
+//			}
+//			else {
+//				api::user_data.hwid = data[XorStr("hwid")];
+//			}
+//			api::user_data.createdate = data[XorStr("createdate")];
+//			api::user_data.lastlogin = data[XorStr("lastlogin")];
+//
+//			for (int i = 0; i < data[XorStr("subscriptions")].size(); i++) { // Prompto#7895 & stars#2297 was here
+//				subscriptions_class subscriptions;
+//				subscriptions.name = data[XorStr("subscriptions")][i][XorStr("subscription")];
+//				subscriptions.expiry = data[XorStr("subscriptions")][i][XorStr("expiry")];
+//				api::user_data.subscriptions.emplace_back(subscriptions);
+//			}
+//		}
+//
+//		void load_app_data(nlohmann::json data) {
+//			api::app_data.numUsers = data[XorStr("numUsers")];
+//			api::app_data.numOnlineUsers = data[XorStr("numOnlineUsers")];
+//			api::app_data.numKeys = data[XorStr("numKeys")];
+//			api::app_data.version = data[XorStr("version")];
+//			api::app_data.customerPanelLink = data[XorStr("customerPanelLink")];
+//		}
+//
+//		void load_response_data(nlohmann::json data) {
+//			api::response.success = data[XorStr("success")];
+//			api::response.message = data["message"];
+//
+//			if (data.contains(XorStr("role").c_str()) && data[XorStr("role")] != XorStr("tester").c_str() && data[XorStr("role")] != XorStr("not_checked").c_str()) {
+//				api::response.isPaid = true;
+//			}
+//		}
+//
+//		void load_channel_data(nlohmann::json data) {
+//			api::response.success = data["success"]; // intentional. Possibly trick a reverse engineer into thinking this string is for login function
+//			api::response.message = data["message"];
+//			api::response.channeldata.clear(); //If you do not delete the data before pushing it, the data will be repeated. github.com/TTakaTit
+//			for (const auto sub : data["messages"]) {
+//
+//				std::string authoroutput = sub[XorStr("author")];
+//				std::string messageoutput = sub["message"];
+//				int timestamp = sub[XorStr("timestamp")]; std::string timestampoutput = std::to_string(timestamp);
+//				authoroutput.erase(remove(authoroutput.begin(), authoroutput.end(), '"'), authoroutput.end());
+//				messageoutput.erase(remove(messageoutput.begin(), messageoutput.end(), '"'), messageoutput.end());
+//				timestampoutput.erase(remove(timestampoutput.begin(), timestampoutput.end(), '"'), timestampoutput.end());
+//				channel_struct output = { authoroutput , messageoutput, timestampoutput };
+//				api::response.channeldata.push_back(output);
+//			}
+//		}
+//
+//		nlohmann::json response_decoder;
+//
 	};
 }

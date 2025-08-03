@@ -1,6 +1,6 @@
 #ifndef KDLIBMODE
 
-#include <Windows.h>
+#include <windows.h>
 #include <iostream>
 #include <string>
 #include <vector>

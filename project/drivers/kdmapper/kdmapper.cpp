@@ -1,5 +1,5 @@
 #include "kdmapper.hpp"
-#include <Windows.h>
+#include <windows.h>
 #include <iostream>
 
 #include "utils.hpp"

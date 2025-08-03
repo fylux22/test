@@ -1,6 +1,6 @@
 #include "portable_executable.hpp"
 
-#include <Windows.h>
+#include <windows.h>
 #include <string>
 
 

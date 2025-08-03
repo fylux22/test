@@ -4,7 +4,7 @@
 // Check project properties -> Linker -> Input -> Additional Dependencies
 //
 
-#include <Windows.h>
+#include <windows.h>
 #include <string>
 #include <vector>
 #include <filesystem>

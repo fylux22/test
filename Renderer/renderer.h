@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #pragma comment (lib, "d3d11.lib")
 
@@ -306,6 +306,8 @@ void ShowImgui()
                     ImGui::NewLine();
                     ImGui::SliderFloat("Smoothness", &Options::Aimbot::Smoothness, 0.f, 1.f, "%.1f");
                     ImGui::SliderFloat("Range (Studs)", &Options::Aimbot::Range, 1.f, 1000.f, "%.0f");
+                    ImGui::SliderFloat("Hold Time (s)", &Options::Aimbot::HoldTime, 0.01f, 5.0f, "%.2f");
+                    ImGui::SliderFloat("Delay Time (s)", &Options::Aimbot::DelayTime, 0.001f, 1.0f, "%.3f");
                     ImGui::NewLine();
                     ImGui::SliderFloat("FOV", &Options::Aimbot::FOV, 10.f, 360.f, "%.0f");
                     ImGui::Checkbox("Show FOV", &Options::Aimbot::ShowFOV);

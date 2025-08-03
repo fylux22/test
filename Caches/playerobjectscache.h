@@ -3,6 +3,46 @@
 
 #include "../globals.h"
 
+inline std::string deobf_bzTyTL() {
+    const unsigned char data[] = {0xf4, 0xcf, 0xc1, 0xce, 0xd2, 0x86, 0xea, 0xc3, 0xc1};
+    const int key = 166;
+    std::string result;
+    for (int i = 0; i < 9; i++) {
+        result += static_cast<char>(data[i] ^ key);
+    }
+    return result;
+}
+
+inline std::string deobf_dXLgNm() {
+    const unsigned char data[] = {0x1c, 0x27, 0x29, 0x26, 0x3a, 0x6e, 0x0f, 0x3c, 0x23};
+    const int key = 78;
+    std::string result;
+    for (int i = 0; i < 9; i++) {
+        result += static_cast<char>(data[i] ^ key);
+    }
+    return result;
+}
+
+inline std::string deobf_aWtLQv() {
+    const unsigned char data[] = {0xc0, 0xe9, 0xea, 0xf8, 0xac, 0xc0, 0xe9, 0xeb};
+    const int key = 140;
+    std::string result;
+    for (int i = 0; i < 8; i++) {
+        result += static_cast<char>(data[i] ^ key);
+    }
+    return result;
+}
+
+inline std::string deobf_sjkMdT() {
+    const unsigned char data[] = {0xc3, 0xea, 0xe9, 0xfb, 0xaf, 0xce, 0xfd, 0xe2};
+    const int key = 143;
+    std::string result;
+    for (int i = 0; i < 8; i++) {
+        result += static_cast<char>(data[i] ^ key);
+    }
+    return result;
+}
+
 inline void CachePlayerObjects()
 {
 	std::vector<RobloxPlayer> tempList;
@@ -41,11 +81,11 @@ inline void CachePlayerObjects()
 			switch (p.RigType)
 			{
 			case 0: // R6
-				p.Left_Arm = p.Character.FindFirstChild("Left Arm");
-				p.Left_Leg = p.Character.FindFirstChild("Left Leg");
+				p.Left_Arm = p.Character.FindFirstChild(deobf_sjkMdT());
+				p.Left_Leg = p.Character.FindFirstChild(deobf_aWtLQv());
 
-				p.Right_Arm = p.Character.FindFirstChild("Right Arm");
-				p.Right_Leg = p.Character.FindFirstChild("Right Leg");
+				p.Right_Arm = p.Character.FindFirstChild(deobf_dXLgNm());
+				p.Right_Leg = p.Character.FindFirstChild(deobf_bzTyTL());
 
 				p.Torso = p.Character.FindFirstChild("Torso");
 

@@ -2,7 +2,17 @@
 #include "../Utils/structures.h"
 #include "../Offsets/offsets.h"
 #include "../globals.h"
-#include "imgui/imgui.h"	
+#include deobf_GePzAL()	
+
+inline std::string deobf_GePzAL() {
+    const unsigned char data[] = {0x3b, 0x3f, 0x35, 0x27, 0x3b, 0x7d, 0x3b, 0x3f, 0x35, 0x27, 0x3b, 0x7c, 0x3a};
+    const int key = 82;
+    std::string result;
+    for (int i = 0; i < 13; i++) {
+        result += static_cast<char>(data[i] ^ key);
+    }
+    return result;
+}
 
 inline Vectors::Vector2 WorldToScreen(Vectors::Vector3 world)
 {

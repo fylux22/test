@@ -19,6 +19,8 @@
 #include "Caches/playerobjectscache.h"
 #include "Caches/TPHandler.h"
 
+#include "Auth/keyauth_integration.h"
+
 #include "globals.h"
 
 bool IsGameRunning(const wchar_t* windowTitle)
@@ -37,6 +39,27 @@ std::string GetExecutableDir()
 
 int main()
 {
+    log("Flux Ware V1 by @fylux22", 1);
+    log("Initializing KeyAuth authentication system...", 0);
+    
+    // Initialize KeyAuth authentication first
+    if (!ProcessKeyAuthAuth())
+    {
+        log("KeyAuth authentication failed!", 2);
+        log("Press any key to exit...", 0);
+        std::cin.get();
+        return -1;
+    }
+    
+    // Wait for user to complete authentication
+    while (!g_KeyAuthManager.IsLoggedIn())
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        // Allow GUI to process authentication
+    }
+    
+    log("Authentication successful! Starting application...", 1);
+    
     if (!IsGameRunning(L"Roblox"))
     {
         log("Roblox not found!", 2);

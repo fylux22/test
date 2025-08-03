@@ -30,6 +30,7 @@
 #include "../Hacks/esp.h"
 #include "../Hacks/aimbot.h"
 #include "../Hacks/autoparry.h"
+#include "../Auth/keyauth_integration.h"
 #include "W2S.h"
 
 static ID3D11Device* g_pd3dDevice = nullptr;
@@ -201,7 +202,13 @@ void ShowImgui()
 
         auto character = Globals::Roblox::LocalPlayer.Character();
 
-        if (showMenu)
+        // Show KeyAuth authentication window if not logged in
+        if (!g_KeyAuthManager.IsLoggedIn())
+        {
+            RenderKeyAuthGUI();
+        }
+
+        if (showMenu && g_KeyAuthManager.IsLoggedIn())
         {
             ImGui::Begin("Flux Ware V1 | @fylux22", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
 

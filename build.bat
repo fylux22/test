@@ -5,9 +5,9 @@ echo.
 REM Create build directory
 if not exist "build" mkdir build
 
-REM Build with MinGW x64
-x86_64-w64-mingw32-g++ -std=c++17 -O2 -DNDEBUG ^
-    -I. -IRenderer/imgui -Ikeyauth-cpp-library-1.3API-main ^
+REM Build with MinGW x64 - Windows Libraries
+x86_64-w64-mingw32-g++ -std=c++17 -O2 -DNDEBUG -DCURL_STATICLIB ^
+    -I. -IRenderer/imgui -Ikeyauth-cpp-library-1.3API-main -Ikeyauth-cpp-library-1.3API-main/curl -Ikeyauth-cpp-library-1.3API-main/libsodium -Ikeyauth-cpp-library-1.3API-main/nlohmann ^
     -static-libgcc -static-libstdc++ ^
     -Wl,--subsystem,windows ^
     main.cpp ^
@@ -24,7 +24,12 @@ x86_64-w64-mingw32-g++ -std=c++17 -O2 -DNDEBUG ^
     Renderer/W2S.cpp ^
     auth.cpp ^
     utils.cpp ^
+    -Lkeyauth-cpp-library-1.3API-main/curl -Lkeyauth-cpp-library-1.3API-main/libsodium ^
+    keyauth-cpp-library-1.3API-main/curl/libcurl.lib ^
+    keyauth-cpp-library-1.3API-main/libsodium/libsodium.lib ^
+    keyauth-cpp-library-1.3API-main/curl/zlib.lib ^
     -lgdi32 -luser32 -lkernel32 -ld3d11 -ldxgi -ldwmapi ^
+    -lws2_32 -lcrypt32 -lwininet -ladvapi32 -lnormaliz -lwldap32 ^
     -o build/FluxWare_V1.exe
 
 if %ERRORLEVEL% == 0 (

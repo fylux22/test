@@ -61,4 +61,20 @@ namespace Options
 		inline RobloxPlayer CurrentTarget;
 		inline bool Toggled;
 	}
+	namespace Parry
+	{
+		inline bool Enabled = false;
+		inline float DetectionRange = 10.0f;
+		inline float ParryWindow = 0.3f;
+		inline bool DetectM1 = true;
+		inline bool DetectM2 = true;
+		inline bool DetectAbilities = true;
+		inline bool DetectAnimations = true;
+		inline bool AutoParry = false;
+		inline int ParryKey = VK_F;
+		inline bool VisualFeedback = true;
+		inline float ParryColor[3] = {1.0f, 0.0f, 0.0f};
+		inline bool LogAttacks = false;
+		inline bool TeamCheck = true;
+	}
 }

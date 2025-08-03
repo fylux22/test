@@ -60,6 +60,14 @@ inline json CreateConfig(std::string configName)
         {"FOV", Options::Misc::FOV}
     };
 
+    j["AutoParry"] =
+    {
+        {"Enabled", Options::AutoParry::Enabled},
+        {"DelayAmount", Options::AutoParry::DelayAmount},
+        {"ParryRange", Options::AutoParry::ParryRange},
+        {"ParryHoldTime", Options::AutoParry::ParryHoldTime}
+    };
+
     std::ofstream out(Globals::configsPath + "\\" + configName);
     out << j.dump(4);
     out.close();
@@ -144,4 +152,13 @@ inline void LoadConfig(std::string configName)
     Options::Misc::Walkspeed = data["Misc"]["Walkspeed"];
     Options::Misc::JumpPower = data["Misc"]["JumpPower"];
     Options::Misc::FOV = data["Misc"]["FOV"];
+
+    // Auto Parry Loading
+    if (data.contains("AutoParry"))
+    {
+        Options::AutoParry::Enabled = data["AutoParry"]["Enabled"];
+        Options::AutoParry::DelayAmount = data["AutoParry"]["DelayAmount"];
+        Options::AutoParry::ParryRange = data["AutoParry"]["ParryRange"];
+        Options::AutoParry::ParryHoldTime = data["AutoParry"]["ParryHoldTime"];
+    }
 }

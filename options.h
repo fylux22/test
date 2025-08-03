@@ -61,4 +61,11 @@ namespace Options
 		inline RobloxPlayer CurrentTarget;
 		inline bool Toggled;
 	}
+	namespace AutoParry
+	{
+		inline bool Enabled = false;
+		inline float DelayAmount = 0.1f;
+		inline float ParryRange = 10.0f;
+		inline float ParryHoldTime = 0.5f;
+	}
 }

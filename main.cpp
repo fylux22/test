@@ -14,6 +14,7 @@
 #include "Renderer/renderer.h"
 
 #include "Hacks/misc.h"
+#include "Hacks/parry.h"
 
 #include "Caches/playercache.h"
 #include "Caches/playerobjectscache.h"
@@ -135,6 +136,7 @@ int main()
     std::thread(CachePlayerObjects).detach();
     std::thread(TPHandler).detach();
     std::thread(MiscLoop).detach();
+    std::thread(RunParry).detach();
 
     std::cin.get();
 

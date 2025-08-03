@@ -36,23 +36,14 @@ inline json CreateConfig(std::string configName)
         { "Head Circles Color", Options::ESP::HeadCircleColor }
     };
 
-    j["Aimbot"] =
+    j["Parry"] =
     {
-        {"Aimbot Key", Options::Aimbot::AimbotKey},
-        {"Aiming Type", Options::Aimbot::AimingType},
-        {"Aimbot", Options::Aimbot::Aimbot},
-        {"Team Check", Options::Aimbot::TeamCheck},
-        {"Downed Check", Options::Aimbot::DownedCheck},
-        {"Sticky Aim", Options::Aimbot::StickyAim},
-        {"Target Bone", Options::Aimbot::TargetBone},
-        {"FOV", Options::Aimbot::FOV},
-        {"Show FOV", Options::Aimbot::ShowFOV},
-        {"FOV Color", Options::Aimbot::FOVColor},
-        {"FOV Fill Color", Options::Aimbot::FOVFillColor},
-        {"Smoothness", Options::Aimbot::Smoothness},
-        {"Range", Options::Aimbot::Range},
-        {"Hold Time", Options::Aimbot::HoldTime},
-        {"Delay Time", Options::Aimbot::DelayTime}
+        {"Enabled", Options::Parry::Enabled},
+        {"Parry Key", Options::Parry::ParryKey},
+        {"Auto Parry", Options::Parry::AutoParry},
+        {"Hold Time", Options::Parry::HoldTime},
+        {"Delay Time", Options::Parry::DelayTime},
+        {"Parry Window", Options::Parry::ParryWindow}
     };
 
     j["Misc"] =
@@ -118,30 +109,14 @@ inline void LoadConfig(std::string configName)
     Options::ESP::HeadCircleColor[1] = data["ESP"]["Head Circles Color"][1];
     Options::ESP::HeadCircleColor[2] = data["ESP"]["Head Circles Color"][2];
 
-    // Aimbot Loading
+    // Parry Loading
 
-    Options::Aimbot::AimbotKey = data["Aimbot"]["Aimbot Key"];
-    Options::Aimbot::AimingType = data["Aimbot"]["Aiming Type"];
-    Options::Aimbot::Aimbot = data["Aimbot"]["Aimbot"];
-    Options::Aimbot::TeamCheck = data["Aimbot"]["Team Check"];
-    Options::Aimbot::DownedCheck = data["Aimbot"]["Downed Check"];
-    Options::Aimbot::StickyAim = data["Aimbot"]["Sticky Aim"];
-    Options::Aimbot::TargetBone = data["Aimbot"]["Target Bone"];
-    Options::Aimbot::FOV = data["Aimbot"]["FOV"];
-    Options::Aimbot::ShowFOV = data["Aimbot"]["Show FOV"];
-
-    Options::Aimbot::FOVColor[0] = data["Aimbot"]["FOV Color"][0];
-    Options::Aimbot::FOVColor[1] = data["Aimbot"]["FOV Color"][1];
-    Options::Aimbot::FOVColor[2] = data["Aimbot"]["FOV Color"][2];
-
-    Options::Aimbot::FOVFillColor[0] = data["Aimbot"]["FOV Fill Color"][0];
-    Options::Aimbot::FOVFillColor[1] = data["Aimbot"]["FOV Fill Color"][1];
-    Options::Aimbot::FOVFillColor[2] = data["Aimbot"]["FOV Fill Color"][2];
-
-    Options::Aimbot::Smoothness = data["Aimbot"]["Smoothness"];
-    Options::Aimbot::Range = data["Aimbot"]["Range"];
-    Options::Aimbot::HoldTime = data["Aimbot"]["Hold Time"];
-    Options::Aimbot::DelayTime = data["Aimbot"]["Delay Time"];
+    Options::Parry::Enabled = data["Parry"]["Enabled"];
+    Options::Parry::ParryKey = data["Parry"]["Parry Key"];
+    Options::Parry::AutoParry = data["Parry"]["Auto Parry"];
+    Options::Parry::HoldTime = data["Parry"]["Hold Time"];
+    Options::Parry::DelayTime = data["Parry"]["Delay Time"];
+    Options::Parry::ParryWindow = data["Parry"]["Parry Window"];
 
     // Misc Loading
 

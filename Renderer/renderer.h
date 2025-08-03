@@ -28,7 +28,6 @@
 #include "../Utils/configs.h"
 
 #include "../Hacks/esp.h"
-#include "../Hacks/aimbot.h"
 #include "W2S.h"
 
 static ID3D11Device* g_pd3dDevice = nullptr;
@@ -207,7 +206,7 @@ void ShowImgui()
             if (ImGui::Button("Visuals | " ICON_FA_EYE))
                 category = 0;
             ImGui::SameLine();
-            if (ImGui::Button("Aimot | " ICON_FA_GUN))
+            if (ImGui::Button("Parry | " ICON_FA_SHIELD))
                 category = 1;
             ImGui::SameLine();
             if (ImGui::Button("Miscellaneous | " ICON_FA_CHESS))
@@ -267,52 +266,20 @@ void ShowImgui()
                     break;
                 }
 
-                case 1: // Aimbot
+                case 1: // Parry
                 {
-                    ImGui::Checkbox("Aimbot", &Options::Aimbot::Aimbot);
+                    ImGui::Checkbox("Auto Parry", &Options::Parry::Enabled);
 
                     ImGui::SameLine(564);
                     ImGui::SetNextItemWidth(100);
-                    KeyBind::KeyBindButton("##AimbotKey", &Options::Aimbot::AimbotKey);
+                    KeyBind::KeyBindButton("##ParryKey", &Options::Parry::ParryKey);
 
-                    ImGui::Checkbox("Team Check", &Options::Aimbot::TeamCheck);
-
-                    ImGui::SameLine(564);
-
-                    static const char* toggleType[]{ "Hold", "Toggle" };
-                    ImGui::SetNextItemWidth(100);
-                    if(ImGui::Combo("##ToggleType", &Options::Aimbot::ToggleType, toggleType, IM_ARRAYSIZE(toggleType)));
-                    {
-                        Options::Aimbot::Toggled = false;
-                        Options::Aimbot::CurrentTarget = RobloxPlayer(0);
-                    }
-
-                    ImGui::Checkbox("Downed Check", &Options::Aimbot::DownedCheck);
-
-                    ImGui::SameLine(564);
-
-                    static const char* aimingMethods[]{ "Camera", "Mouse" };
-                    ImGui::SetNextItemWidth(100);
-                    ImGui::Combo("##AimingMethod", &Options::Aimbot::AimingType, aimingMethods, IM_ARRAYSIZE(aimingMethods));
-
-                    ImGui::Checkbox("Sticky Aim", &Options::Aimbot::StickyAim);
-
-                    ImGui::SameLine(564);
-
-                    static const char* targetBones[]{ "Head", "HumanoidRootPart", "Left Arm", "Right Arm", "Left Leg", "Right Leg" };
-                    ImGui::SetNextItemWidth(100);
-                    ImGui::Combo("##TargetBone", &Options::Aimbot::TargetBone, targetBones, IM_ARRAYSIZE(targetBones));
+                    ImGui::Checkbox("Auto Parry Mode", &Options::Parry::AutoParry);
 
                     ImGui::NewLine();
-                    ImGui::SliderFloat("Smoothness", &Options::Aimbot::Smoothness, 0.f, 1.f, "%.1f");
-                    ImGui::SliderFloat("Range (Studs)", &Options::Aimbot::Range, 1.f, 1000.f, "%.0f");
-                    ImGui::SliderFloat("Hold Time (s)", &Options::Aimbot::HoldTime, 0.01f, 5.0f, "%.2f");
-                    ImGui::SliderFloat("Delay Time (s)", &Options::Aimbot::DelayTime, 0.001f, 1.0f, "%.3f");
-                    ImGui::NewLine();
-                    ImGui::SliderFloat("FOV", &Options::Aimbot::FOV, 10.f, 360.f, "%.0f");
-                    ImGui::Checkbox("Show FOV", &Options::Aimbot::ShowFOV);
-                    ImGui::ColorEdit3("FOV Color", Options::Aimbot::FOVColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
-                    ImGui::ColorEdit4("FOV Fill Color", Options::Aimbot::FOVFillColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
+                    ImGui::SliderFloat("Hold Time (s)", &Options::Parry::HoldTime, 0.01f, 5.0f, "%.2f");
+                    ImGui::SliderFloat("Delay Time (s)", &Options::Parry::DelayTime, 0.001f, 1.0f, "%.3f");
+                    ImGui::SliderFloat("Parry Window (s)", &Options::Parry::ParryWindow, 0.01f, 1.0f, "%.2f");
                     
                     break;
 
@@ -494,11 +461,7 @@ void ShowImgui()
                 RenderESP(ImGui::GetBackgroundDrawList());
         }
 
-        if (Options::Aimbot::Aimbot)
-        {
-            if (!showMenu && IsGameOnTop("Roblox"))
-                RunAimbot(ImGui::GetBackgroundDrawList());
-        }
+
 
         ImGui::Render();
         const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w };

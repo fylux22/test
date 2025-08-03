@@ -3,6 +3,7 @@
 #include "../renderer/W2S.h"
 #include "../renderer/imgui/imgui.h"
 #include "../options.h"
+#include "../Hacks/parry.h"
 #include <algorithm>
 
 inline void RenderESP(ImDrawList* drawList)
@@ -391,6 +392,77 @@ inline void RenderESP(ImDrawList* drawList)
                 drawList->AddLine(corners2D[1], corners2D[5], esp3dColor, 2.0f);
                 drawList->AddLine(corners2D[2], corners2D[6], esp3dColor, 2.0f);
                 drawList->AddLine(corners2D[3], corners2D[7], esp3dColor, 2.0f);
+            }
+        }
+    }
+    
+    // Render parry visual feedback
+    if (Options::Parry::VisualFeedback && Options::Parry::Enabled)
+    {
+        const auto& activeAttacks = ParryDetection::GetActiveAttacks();
+        auto localCharacter = Globals::Roblox::LocalPlayer.Character();
+        
+        if (localCharacter)
+        {
+            Vectors::Vector3 localPos = localCharacter.Position();
+            
+            for (const auto& attack : activeAttacks)
+            {
+                if (attack.isActive)
+                {
+                    // Convert attack position to screen coordinates
+                    auto attackPos2D = WorldToScreen(attack.attackPosition);
+                    
+                    if (attackPos2D.x != -1 && attackPos2D.y != -1)
+                    {
+                        // Calculate distance to determine indicator size
+                        float distance = (localPos - attack.attackPosition).Magnitude();
+                        float scale = std::clamp(50.0f / distance, 5.0f, 20.0f);
+                        
+                        // Create parry color
+                        ImColor parryColor = IM_COL32(
+                            static_cast<int>(Options::Parry::ParryColor[0] * 255.f),
+                            static_cast<int>(Options::Parry::ParryColor[1] * 255.f),
+                            static_cast<int>(Options::Parry::ParryColor[2] * 255.f),
+                            255
+                        );
+                        
+                        // Draw attack indicator
+                        ImVec2 center(attackPos2D.x, attackPos2D.y);
+                        float radius = scale;
+                        
+                        // Draw circle around attack
+                        drawList->AddCircle(center, radius, parryColor, 0, 3.0f);
+                        
+                        // Draw attack type text
+                        std::string attackText = attack.attackType + " Attack";
+                        ImVec2 textSize = ImGui::CalcTextSize(attackText.c_str());
+                        ImVec2 textPos(center.x - textSize.x / 2.0f, center.y - radius - textSize.y - 5.0f);
+                        
+                        // Draw background for text
+                        ImVec2 bgMin(textPos.x - 2.0f, textPos.y - 2.0f);
+                        ImVec2 bgMax(textPos.x + textSize.x + 2.0f, textPos.y + textSize.y + 2.0f);
+                        drawList->AddRectFilled(bgMin, bgMax, IM_COL32(0, 0, 0, 180));
+                        
+                        // Draw text
+                        drawList->AddText(textPos, parryColor, attackText.c_str());
+                        
+                        // Draw line from attack to local player if in range
+                        if (distance <= Options::Parry::DetectionRange)
+                        {
+                            auto localPos2D = WorldToScreen(localPos);
+                            if (localPos2D.x != -1 && localPos2D.y != -1)
+                            {
+                                drawList->AddLine(
+                                    ImVec2(localPos2D.x, localPos2D.y),
+                                    center,
+                                    parryColor,
+                                    2.0f
+                                );
+                            }
+                        }
+                    }
+                }
             }
         }
     }

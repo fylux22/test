@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #pragma comment (lib, "d3d11.lib")
 
@@ -29,6 +29,7 @@
 
 #include "../Hacks/esp.h"
 #include "../Hacks/aimbot.h"
+#include "../Hacks/parry.h"
 #include "W2S.h"
 
 static ID3D11Device* g_pd3dDevice = nullptr;
@@ -320,6 +321,42 @@ void ShowImgui()
                     ImGui::SliderFloat("Walkspeed", &Options::Misc::Walkspeed, 0.f, 500.f, "%.0f");
                     ImGui::SliderFloat("JumpPower", &Options::Misc::JumpPower, 0.f, 500.f, "%.0f");
                     ImGui::SliderFloat("FOV", &Options::Misc::FOV, 1.f, 120, "%.0f");
+                    
+                    ImGui::NewLine();
+                    ImGui::Separator();
+                    ImGui::Text("Parry Detection System");
+                    ImGui::Separator();
+                    
+                    ImGui::Checkbox("Enable Parry Detection", &Options::Parry::Enabled);
+                    ImGui::SliderFloat("Detection Range", &Options::Parry::DetectionRange, 1.0f, 50.0f, "%.1f");
+                    ImGui::SliderFloat("Parry Window", &Options::Parry::ParryWindow, 0.1f, 1.0f, "%.2f");
+                    
+                    ImGui::NewLine();
+                    ImGui::Text("Detection Types:");
+                    ImGui::Checkbox("Detect M1 Attacks", &Options::Parry::DetectM1);
+                    ImGui::Checkbox("Detect M2 Attacks", &Options::Parry::DetectM2);
+                    ImGui::Checkbox("Detect Abilities", &Options::Parry::DetectAbilities);
+                    ImGui::Checkbox("Detect Animations", &Options::Parry::DetectAnimations);
+                    
+                    ImGui::NewLine();
+                    ImGui::Text("Auto Parry Settings:");
+                    ImGui::Checkbox("Auto Parry", &Options::Parry::AutoParry);
+                    ImGui::SameLine(564);
+                    ImGui::SetNextItemWidth(100);
+                    KeyBind::KeyBindButton("##ParryKey", &Options::Parry::ParryKey);
+                    
+                    ImGui::Checkbox("Team Check", &Options::Parry::TeamCheck);
+                    ImGui::Checkbox("Visual Feedback", &Options::Parry::VisualFeedback);
+                    ImGui::SameLine(564);
+                    ImGui::ColorEdit3("Parry Color", Options::Parry::ParryColor, ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_NoInputs);
+                    
+                    ImGui::Checkbox("Log Attacks", &Options::Parry::LogAttacks);
+                    
+                    if (ImGui::Button("Reload Animation Data"))
+                    {
+                        ParryDetection::ReloadAnimationData();
+                    }
+                    
                     break;
                 }
                 case 3:

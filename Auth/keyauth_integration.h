@@ -9,7 +9,7 @@
 // KeyAuth integration with proper credentials as provided
 namespace KeyAuthConfig
 {
-    inline std::string name = skCrypt("Fylux22's Application").decrypt(); // App name
+    inline std::string name = skCrypt("Flux Ware").decrypt(); // App name
     inline std::string ownerid = skCrypt("pEdaaKQNmZ").decrypt(); // Account ID
     inline std::string version = skCrypt("1.0").decrypt(); // Application version
     inline std::string url = skCrypt("https://keyauth.win/api/1.3/").decrypt(); // API URL

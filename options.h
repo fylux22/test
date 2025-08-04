@@ -75,25 +75,65 @@ namespace Options
 	}
 	namespace AutoParry
 	{
+		// Core settings
 		inline bool AutoParry = false;
 		inline bool AutoParryDebugger = false;
-		inline bool ShowDebugOverlay = true;
-		inline bool LogDetections = true;
-		inline bool ShowTimingAnalysis = true;
-		inline bool ShowRangeIndicator = false;
 		inline float ParryRange = 15.0f;
 		inline float ParryDelay = 0.15f;
 		inline float HoldTime = 0.1f;
 		inline int ParryKey = VK_F;
+		
+		// Enhanced timing settings
 		inline bool SmartTiming = true;
 		inline float PredictionTime = 0.05f;
+		inline bool AdaptiveTiming = true;
+		inline float MinParryDelay = 0.05f;
+		inline float MaxParryDelay = 0.25f;
+		inline float MinHoldTime = 0.05f;
+		inline float MaxHoldTime = 0.2f;
+		
+		// Animation-based settings
+		inline bool UseAnimationDetection = true;
+		inline bool PrioritizeHighThreatAnimations = true;
+		inline float AnimationConfidenceThreshold = 0.8f;
+		inline bool ShowAnimationInfo = true;
+		
+		// Targeting settings
 		inline bool OnlyParryWhenFacing = true;
 		inline float FacingAngleTolerance = 45.0f;
+		inline bool TeamCheck = true;
+		inline bool HealthCheck = true;
+		inline float MinHealthToParry = 10.0f;
+		inline bool WeaponCheck = true;
+		
+		// Performance settings
+		inline int MaxSimultaneousParries = 1;
+		inline float ParryCooldown = 0.2f;
+		inline bool UseDriverMemory = true;
+		inline bool UseObfuscatedInput = true;
+		
+		// Visual settings
+		inline bool ShowDebugOverlay = true;
+		inline bool LogDetections = true;
+		inline bool ShowTimingAnalysis = true;
+		inline bool ShowRangeIndicator = false;
+		inline bool ShowAnimationProgress = true;
+		inline bool ShowParryWindow = true;
 		
 		// Debug colors
 		inline float DebugTextColor[3] = {1.0f, 1.0f, 1.0f};
 		inline float DetectionColor[3] = {1.0f, 0.0f, 0.0f};
 		inline float SuccessColor[3] = {0.0f, 1.0f, 0.0f};
 		inline float RangeColor[3] = {1.0f, 1.0f, 0.0f};
+		inline float AnimationColor[3] = {0.0f, 0.5f, 1.0f};
+		inline float ParryWindowColor[3] = {1.0f, 0.5f, 0.0f};
+		
+		// Advanced settings
+		inline bool AntiAim = false;
+		inline bool PredictiveParry = true;
+		inline float PredictionAccuracy = 0.85f;
+		inline bool MultiTargetParry = false;
+		inline bool AutoAdjustTiming = true;
+		inline bool LearningMode = false;
 	}
 }

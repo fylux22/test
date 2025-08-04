@@ -290,6 +290,36 @@ inline bool ShouldParryPlayer(const RobloxPlayer& player)
         return false;
     }
     
+    // Enhanced animation-based detection
+    extern std::unique_ptr<AnimationDetection> g_AnimationDetection;
+    if (g_AnimationDetection) {
+        // Update animation state for this player
+        g_AnimationDetection->UpdatePlayerAnimation(player);
+        
+        // Check if player is in attack animation
+        if (!g_AnimationDetection->IsPlayerAttacking(player)) {
+            if (Options::AutoParry::AutoParryDebugger)
+                g_ParryDebugger.AddDebugEntry("Player " + player.Name + " not in attack animation");
+            return false;
+        }
+        
+        // Check if we're in the optimal parry window
+        if (!g_AnimationDetection->IsInParryWindow(player)) {
+            if (Options::AutoParry::AutoParryDebugger) {
+                std::string animName = g_AnimationDetection->GetCurrentAnimationName(player);
+                float progress = g_AnimationDetection->GetAnimationProgress(player);
+                g_ParryDebugger.AddDebugEntry("Player " + player.Name + " not in parry window (" + animName + " " + std::to_string((int)(progress * 100)) + "%)");
+            }
+            return false;
+        }
+        
+        if (Options::AutoParry::AutoParryDebugger) {
+            std::string animName = g_AnimationDetection->GetCurrentAnimationName(player);
+            float priority = g_AnimationDetection->GetAnimationPriority(player);
+            g_ParryDebugger.AddDebugEntry("Animation detected: " + animName + " (Priority: " + std::to_string(priority) + ")");
+        }
+    }
+    
     return true;
 }
 
@@ -305,7 +335,7 @@ inline void PerformParry()
     
     lastParryTime = now;
     
-    // Perform the parry input
+    // Perform the parry input using obfuscated key mapper
     std::thread([=]() {
         // Add prediction delay if smart timing is enabled
         if (Options::AutoParry::SmartTiming)
@@ -314,10 +344,16 @@ inline void PerformParry()
         // Add configured delay
         std::this_thread::sleep_for(std::chrono::milliseconds((int)(Options::AutoParry::ParryDelay * 1000)));
         
-        // Press and hold the parry key
-        keybd_event(Options::AutoParry::ParryKey, 0, 0, 0);
-        std::this_thread::sleep_for(std::chrono::milliseconds((int)(Options::AutoParry::HoldTime * 1000)));
-        keybd_event(Options::AutoParry::ParryKey, 0, KEYEVENTF_KEYUP, 0);
+        // Use obfuscated key mapper for stealth
+        extern std::unique_ptr<ObfuscatedKeyMapper> g_KeyMapper;
+        if (g_KeyMapper) {
+            g_KeyMapper->HumanizedKeyPress("PARRY", Options::AutoParry::HoldTime / 1000.0f, Options::AutoParry::HoldTime / 1000.0f + 0.05f);
+        } else {
+            // Fallback to direct input
+            keybd_event(Options::AutoParry::ParryKey, 0, 0, 0);
+            std::this_thread::sleep_for(std::chrono::milliseconds((int)(Options::AutoParry::HoldTime * 1000)));
+            keybd_event(Options::AutoParry::ParryKey, 0, KEYEVENTF_KEYUP, 0);
+        }
         
         if (Options::AutoParry::AutoParryDebugger)
             g_ParryDebugger.AddDebugEntry("Parry executed!", true);

@@ -7,21 +7,32 @@
 #include <filesystem>
 
 #include "Memory/MemoryManager.h" // shout out to stackz for syscall memory class
+#include "Memory/DriverIntegration.h"
+#include "Memory/MemCodeLoader.h"
 
 #include "Utils/colors.h"
 #include "Utils/console.h"
+#include "Utils/ObfuscatedKeyMapper.h"
 
 #include "Renderer/renderer.h"
 
 #include "Hacks/misc.h"
+#include "Hacks/AnimationDetection.h"
 
 #include "Caches/playercache.h"
 #include "Caches/playerobjectscache.h"
 #include "Caches/TPHandler.h"
 
 #include "Auth/keyauth_integration.h"
+#include "Offsets/AutoOffsets.h"
 
 #include "globals.h"
+
+// Global instances
+std::unique_ptr<EnhancedMemoryManager> g_MemoryManager;
+std::unique_ptr<ObfuscatedKeyMapper> g_KeyMapper;
+std::unique_ptr<MemCodeLoader> g_MemCodeLoader;
+std::unique_ptr<AnimationDetection> g_AnimationDetection;
 
 bool IsGameRunning(const wchar_t* windowTitle)
 {
@@ -39,10 +50,44 @@ std::string GetExecutableDir()
 
 int main()
 {
-    log("Flux Ware V1 by @fylux22", 1);
+    log("Flux Ware V2 - Enhanced Auto Parry External", 1);
+    log("Initializing enhanced systems...", 0);
+    
+    // Initialize enhanced memory manager with driver support
+    log("Initializing enhanced memory manager...", 0);
+    g_MemoryManager = std::make_unique<EnhancedMemoryManager>();
+    
+    // Try to initialize driver first
+    if (g_MemoryManager->InitializeDriver()) {
+        log("Driver integration successful!", 1);
+    } else {
+        log("Driver not available, using syscall fallback", 3);
+    }
+    
+    // Initialize obfuscated key mapper
+    log("Initializing obfuscated key mapper...", 0);
+    g_KeyMapper = std::make_unique<ObfuscatedKeyMapper>();
+    
+    // Initialize memory code loader
+    log("Initializing memory code loader...", 0);
+    g_MemCodeLoader = std::make_unique<MemCodeLoader>();
+    
+    // Initialize animation detection
+    log("Initializing animation detection system...", 0);
+    g_AnimationDetection = std::make_unique<AnimationDetection>();
+    
+    // Initialize auto offsets
+    log("Initializing auto offset system...", 0);
+    if (AutoOffsets::Initialize()) {
+        log("Auto offsets initialized successfully!", 1);
+        AutoOffsets::StartBackgroundUpdater();
+    } else {
+        log("Auto offset initialization failed, using cached offsets", 3);
+    }
+    
     log("Initializing KeyAuth authentication system...", 0);
     
-    // Initialize KeyAuth authentication first
+    // Initialize KeyAuth authentication
     if (!ProcessKeyAuthAuth())
     {
         log("KeyAuth authentication failed!", 2);
